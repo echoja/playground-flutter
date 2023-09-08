@@ -22,7 +22,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.ezkorry.counter_app"
+    namespace "com.example.counter_app"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
