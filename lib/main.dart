@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -80,8 +82,39 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  bool _reversed = false;
+
+  List<UniqueKey> _buttonKeys = [UniqueKey(), UniqueKey()];
+
+  void _swap() {
+    setState(() {
+      _reversed = !_reversed;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final decrementButton = FancyButton(
+      onPressed: _decrementCounter,
+      child: const Text(
+        "decrease",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+
+    final incrementButton = FancyButton(
+      onPressed: _incrementCounter,
+      child: const Text(
+        "increase",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+
+    var buttons = [incrementButton, decrementButton];
+
+    if (_reversed) {
+      buttons = buttons.reversed.toList();
+    }
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -117,6 +150,18 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 100),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.25),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Image.asset(
+                'lib/images/background_1080.jpg',
+                width: 200.0,
+              ),
+            ),
             const Text(
               'You have pushed the button this many times:',
             ),
@@ -126,15 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                    onPressed: _decrementCounter,
-                    child: const Text("Decrement Counter")),
-                const SizedBox(width: 50),
-                ElevatedButton(
-                    onPressed: _incrementCounter,
-                    child: const Text("Increment Counter"))
-              ],
+              children: buttons,
             ),
             // const Column(
             //   children: [
@@ -147,10 +184,51 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _resetCounter,
+        onPressed: () {
+          _resetCounter();
+          _swap();
+        },
         tooltip: 'Increment',
         child: const Icon(Icons.refresh),
       ),
+    );
+  }
+}
+
+class FancyButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  final Widget child;
+
+  const FancyButton({super.key, required this.onPressed, required this.child});
+
+  @override
+  State<FancyButton> createState() => _FancyButtonState();
+}
+
+Map<_FancyButtonState, Color> _buttonColors = {};
+final _random = Random();
+
+int next(int min, int max) => min + _random.nextInt(max - min);
+List<Color> colors = [
+  Colors.blue,
+  Colors.green,
+  Colors.orange,
+  Colors.purple,
+  Colors.amber,
+  Colors.lightBlue,
+];
+
+class _FancyButtonState extends State<FancyButton> {
+  Color _getColors() {
+    return _buttonColors.putIfAbsent(this, () => colors[next(0, 5)]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(backgroundColor: _getColors()),
+      onPressed: widget.onPressed,
+      child: widget.child,
     );
   }
 }
